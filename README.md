@@ -8,7 +8,7 @@ Developed for the Kingston release.
 ## Current goals:
 
 ### Get-ServiceNowInfo
-* Find a way to access the full list of values in 'getResponse' for each table dynamically to ease build of final "response objects" and eliminate need to make If\Else statements for each table that data is pulled from.
+* DONE! ~~Find a way to access the full list of values in 'getResponse' for each table dynamically to ease build of final "response objects" and eliminate need to make If\Else statements for each table that data is pulled from.~~
 
 ### Create-ServiceNowTicket
 * Expand from Incident to cover more types of "tickets"

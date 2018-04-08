@@ -1,10 +1,12 @@
-﻿# TODO: Create Parameters
+﻿# TODO: Create function that returns a user's name from the sys_user table based on the sys_id
+
 Param(
     [Parameter(Mandatory=$true)]
     [Alias("URI")]
     #[ValidateScript({ Test-Connection $_ -Quiet })]
     [string] $ServiceNowURI,
 
+    # Limit the choices to known existing and tested tables
     [Parameter(Mandatory=$true)]
     [ValidateSet("incident","sys_user","sys_user_group")]
     [string] $ServiceNowTable,
@@ -14,7 +16,7 @@ Param(
     [hashtable] $SearchFilter = @{}
 )
 
-function WriteXmlToScreen ([xml]$xml)
+function Write-XmlToScreen ([xml]$xml)
 {
     $StringWriter = New-Object System.IO.StringWriter;
     $XmlWriter = New-Object System.Xml.XmlTextWriter $StringWriter;
@@ -25,13 +27,7 @@ function WriteXmlToScreen ([xml]$xml)
     Write-Output $StringWriter.ToString();
 }
 
-# TODO: Create function that returns a user's name from the sys_user table based on the sys_id
-
-
 # CUSTOM XML CREATION =============================================================
-#
-#    - We need to pipe .AppendChild() to Out-Null to prevent 
-#         extra output in the host window.
 #
 #    - I have not been able to make this code work in a function.
 #         the object it returns does not cast back to XML correctly.
@@ -99,8 +95,8 @@ $root.AppendChild($bodyNode) | Out-Null
 $xmlDoc.AppendChild($root) | Out-Null
 
 ####### DEBUG ONLY #######
-#WriteXmlToScreen $xmlDoc
-#Write-Host ""
+Write-XmlToScreen $xmlDoc
+Write-Host ""
 ##########################
 
 # END CUSTOM XML ==================================================================
@@ -117,51 +113,49 @@ $post = Invoke-WebRequest -Uri $URI -Credential $cred -Method Post -Body $xmlDoc
 # Convert the response to XML
 $xmlPOST = [xml]$post.Content
 
+####### DEBUG ONLY #######
+#Write-XmlToScreen $xmlPOST
+#Write-Host ""
+##########################
+
 # Parse the response for the data we want and put each result in a custom object
 $collReturn = @()
 
-If ($ServiceNowTable -eq "incident") {
+# Iterate through all 
+For ($i=0; $i -lt $xmlPOST.Envelope.Body.getRecordsResponse.ChildNodes.Count;$i++) {
+    # Create an empty hashtable
+    $htOutput = [ordered]@{}
+    
+    ####### DEBUG ONLY #######    
+    #$debugText = $xmlPOST.Envelope.Body.getRecordsResponse.ChildNodes.Count.ToString() + " nodes in getRecordsResult"
+    #Write-Host $debugText
+    #
+    #$debugText = $xmlPOST.Envelope.Body.getRecordsResponse.getRecordsResult[$i].ChildNodes.Count.ToString() + " nodes in getRecordsResult"
+    #Write-Host $debugText
+    ##########################
 
-    For ($i=0; $i -lt $xmlPOST.Envelope.Body.getRecordsResponse.ChildNodes.Count;$i++) {
-        $objReturn = [pscustomobject] @{
-            number = $xmlPOST.Envelope.Body.getRecordsResponse.getRecordsResult[$i].number
-            category = $xmlPOST.Envelope.Body.getRecordsResponse.getRecordsResult[$i].category
-            active = $xmlPOST.Envelope.Body.getRecordsResponse.getRecordsResult[$i].active
-            opened_at = $xmlPOST.Envelope.Body.getRecordsResponse.getRecordsResult[$i].opened_at
-            resolved_by = $xmlPOST.Envelope.Body.getRecordsResponse.getRecordsResult[$i].resolved_by
-            state = $xmlPOST.Envelope.Body.getRecordsResponse.getRecordsResult[$i].state
-        }
-
-        $collReturn += $objReturn
+    # Add all key/value combinations to the hashtable
+    For ($j=0; $j -lt $xmlPOST.Envelope.Body.getRecordsResponse.getRecordsResult[$i].ChildNodes.Count;$j++) {
+        
+        #$output = $xmlPOST.Envelope.Body.getRecordsResponse.getRecordsResult[$i].ChildNodes[$j].Name + " - " + $xmlPOST.Envelope.Body.getRecordsResponse.getRecordsResult[$i].ChildNodes[$j].InnerText
+        #Write-Host $output -ForegroundColor Yellow
+                
+        $htOutput.Add(("`"" + $xmlPOST.Envelope.Body.getRecordsResponse.getRecordsResult[$i].ChildNodes[$j].Name + "`"") ,$xmlPOST.Envelope.Body.getRecordsResponse.getRecordsResult[$i].ChildNodes[$j].InnerText)
     }
-}
-ElseIf ($ServiceNowTable -eq "sys_user") {
-    For ($i=0; $i -lt $xmlPOST.Envelope.Body.getRecordsResponse.ChildNodes.Count;$i++) {
-        $objReturn = [pscustomobject] @{
-            user_name = $xmlPOST.Envelope.Body.getRecordsResponse.getRecordsResult[$i].user_name
-            last_name = $xmlPOST.Envelope.Body.getRecordsResponse.getRecordsResult[$i].last_name
-            first_name = $xmlPOST.Envelope.Body.getRecordsResponse.getRecordsResult[$i].first_name
-            email = $xmlPOST.Envelope.Body.getRecordsResponse.getRecordsResult[$i].email
-            active = $xmlPOST.Envelope.Body.getRecordsResponse.getRecordsResult[$i].active            
-        }
 
-        $collReturn += $objReturn
-    }
-}
-ElseIf ($ServiceNowTable -eq "sys_user_group") {
-    For ($i=0; $i -lt $xmlPOST.Envelope.Body.getRecordsResponse.ChildNodes.Count;$i++) {
-        $objReturn = [pscustomobject] @{
-            name = $xmlPOST.Envelope.Body.getRecordsResponse.getRecordsResult[$i].name
-            type = $xmlPOST.Envelope.Body.getRecordsResponse.getRecordsResult[$i].type
-            sys_id = $xmlPOST.Envelope.Body.getRecordsResponse.getRecordsResult[$i].sys_id          
-        }
+    # Cast the hashtable to a pscustomobject
+    $objReturn = [pscustomobject]$htOutput
 
-        $collReturn += $objReturn
-    }
+    # Add to the object collection
+    $collReturn += $objReturn
+
+    # Clear the variables
+    $htOutput = $null
+    $objReturn = $null
 }
 
-
-$collReturn | Format-Table
+# Display as a GridView for TESTING ONLY
+$collReturn | Out-GridView
 
 $collReturn = @()
 $xmlDoc = $null
