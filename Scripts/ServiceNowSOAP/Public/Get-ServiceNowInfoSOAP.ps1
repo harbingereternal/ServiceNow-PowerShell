@@ -37,9 +37,12 @@ function Get-ServiceNowInfoSOAP {
         [ValidateSet("incident","sys_user","sys_user_group")]
         [string] $ServiceNowTable,
 
-        [Parameter(Mandatory=$false)]
+        [Parameter(Mandatory=$false,ParameterSetName="StandardQuery")]
         [Alias("Filter")]
-        [hashtable] $SearchFilter = @{}
+        [hashtable] $SearchFilter = @{},
+
+        [Parameter(Mandatory=$false,ParameterSetName="EncodedQuery")]
+        [string] $EncodedQuery = ""
     )
 
     function Write-XmlToScreen ([xml]$xml)
@@ -111,6 +114,16 @@ function Get-ServiceNowInfoSOAP {
         $actionNode.AppendChild($numElement) | Out-Null
     }
 
+    # Create element, Assign the value, add to the parent
+    If ($EncodedQuery -ne "") {
+        $eqName = "__encoded_query"
+        
+        $eqElement = $xmlDoc.CreateElement($eqName)
+        $eqElement.InnerText = $EncodedQuery
+
+        $actionNode.AppendChild($eqElement) | Out-Null
+    }
+
     # Add action node to the body node
     $bodyNode.AppendChild($actionNode) | Out-Null
 
@@ -121,8 +134,8 @@ function Get-ServiceNowInfoSOAP {
     $xmlDoc.AppendChild($root) | Out-Null
 
     ####### DEBUG ONLY #######
-    Write-XmlToScreen $xmlDoc
-    Write-Host ""
+    #Write-XmlToScreen $xmlDoc
+    #Write-Host ""
     ##########################
 
     # END CUSTOM XML ==================================================================
@@ -181,7 +194,13 @@ function Get-ServiceNowInfoSOAP {
     }
 
     # Display as a GridView for TESTING ONLY
-    $collReturn | Out-GridView
+    If ($collReturn.Count -gt 0) {    
+        $collReturn | Out-GridView
+    }
+    Else {
+        $message = "No records found that match the request."
+        Write-Host $message -ForegroundColor Red
+    }
 
     $collReturn = @()
     $xmlDoc = $null

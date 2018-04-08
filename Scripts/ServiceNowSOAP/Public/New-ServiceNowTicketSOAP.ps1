@@ -15,7 +15,7 @@ A hashtable that acts as a filter for the data requested.
 
 .Example
   # Create a ticket
-  Create-ServiceNowTicketSOAP -ServiceNowURI "test.service-now.com" -ServiceNowTable incident -TicketInfo @{impact='4';urgency='3';assignment_group='Incident Management';short_description='Some text';description='Some more text'}
+  New-ServiceNowTicketSOAP -ServiceNowURI "test.service-now.com" -ServiceNowTable incident -TicketInfo @{impact='4';urgency='3';assignment_group='Incident Management';short_description='Some text';description='Some more text'}
 
 #>
 
