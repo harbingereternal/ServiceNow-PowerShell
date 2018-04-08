@@ -1,5 +1,8 @@
 # ServiceNow-PowerShell
-Powershell scripts to leverage ServiceNow's SOAP web service. Developed for the Kingston release.
+Powershell scripts to leverage ServiceNow's SOAP web service. 
+
+Developed for the Kingston release.
+
 [ServiceNow Kingston SOAP Web Service Documentation](https://docs.servicenow.com/bundle/kingston-application-development/page/integrate/inbound-soap/concept/c_SOAPWebService.html)
 
 ## Current goals:
