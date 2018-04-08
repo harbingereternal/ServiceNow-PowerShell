@@ -6,18 +6,29 @@ Developed for the Kingston release.
 [ServiceNow Kingston SOAP Web Service Documentation](https://docs.servicenow.com/bundle/kingston-application-development/page/integrate/inbound-soap/concept/c_SOAPWebService.html)
 
 **IMPORTANT:** Neither this module nor its creator are in any way affiliated with ServiceNow.
-
-## Current goals
+## Tables Currently Supported
 
 ### Get-ServiceNowInfoSOAP
-* DONE! ~~Find a way to access the full list of values in 'getResponse' for each table dynamically to ease build of final "response objects" and eliminate need to make If\Else statements for each table that data is pulled from.~~
-* Implement Encoded Queries [ServiceNow Kingston Filter Operator Documentation](https://docs.servicenow.com/bundle/kingston-platform-user-interface/page/use/common-ui-elements/reference/r_OpAvailableFiltersQueries.html)
+* incident
+* sys_user
+* sys_user_group
+
+### New-ServiceNowTicketSOAP (formerly Create-ServiceNowTicket)
+* incident
+
+## Current Goals
+
+### Get-ServiceNowInfoSOAP
+* Implement Encoded Queries - [ServiceNow Kingston Filter Operator Documentation](https://docs.servicenow.com/bundle/kingston-platform-user-interface/page/use/common-ui-elements/reference/r_OpAvailableFiltersQueries.html)
+	* Initial tests successful for incident, sys_user_group tables
 
 ### New-ServiceNowTicketSOAP (formerly Create-ServiceNowTicket)
 * Expand from Incident to cover more types of "tickets"
 
 ### All scripts
-* Get Custom XML builder into a function to allow more flexibility
+* Get Custom XML builder into a function or independent script(s) to allow more flexibility
+* Create script to return the sys_id of a user by lastname and firstname, or employeenumber
+* Create script to update tickets
 
 ## Usage
 
