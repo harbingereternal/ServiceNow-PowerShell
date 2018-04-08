@@ -1,0 +1,60 @@
+function Build-CustomXML {
+
+    [CmdletBinding()]
+
+    param(
+        [Parameter(mandatory=$true)]
+        [hashtable]$Filter
+    )
+
+    # Create XML object
+    [xml] $xmlDoc = New-Object System.Xml.XmlDocument
+
+    # Add XML declaration and add it to the XML document
+    $declaration = $xmlDoc.CreateXmlDeclaration("1.0","ISO-8859-1",$null)
+    $xmlDoc.AppendChild($declaration)
+
+    # Create ROOT node and add attributes
+    $root = $xmlDoc.CreateNode("element","soapenv:Envelope",$null)
+    $root.SetAttribute("xmlns:soapenv","`"http://schemas.xmlsoap.org/soap/envelope/`"")
+    $root.SetAttribute("xmlns:inc","`"http://www.service-now.com/incident`"")
+
+    # Create Header node, add it to the root
+    $headerNode = $xmlDoc.CreateNode("element","soapenv:Header",$null)
+    $root.AppendChild($headerNode)
+
+    # Create Body Node
+    $bodyNode = $xmlDoc.CreateNode("element","soapenv:Body",$null)
+
+    # Create the "action" node, what we're doing
+    $actionNode = $xmlDoc.CreateNode("element","inc:getRecords",$null)
+
+    # Create elements, assign them a value, and add them to the parent
+    Foreach ($key in $Filter.Keys) {
+        
+        $element = '{0}' -f $key
+        $elemValue = '{0}' -f $Filter[$key]
+
+        $debugMessage = $element + "," + $elemValue
+        Write-Host $debugMessage -ForegroundColor Yellow
+
+        $numElement = $xmlDoc.CreateElement($element)
+        $numElement.InnerText = $elemValue
+
+        $actionNode.AppendChild($numElement)
+    }
+
+    # Add action node to the body node
+    $bodyNode.AppendChild($actionNode)
+
+    # Add the body node to ROOT
+    $root.AppendChild($bodyNode)
+
+    # Add the ROOT node to the XML document
+    $xmlDoc.AppendChild($root)
+
+    $xmlDoc
+}
+
+==================================
+
