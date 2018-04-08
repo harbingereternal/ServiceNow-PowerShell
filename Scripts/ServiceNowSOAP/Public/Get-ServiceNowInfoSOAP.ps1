@@ -26,14 +26,19 @@ A hashtable that acts as a filter for the data requested.
 # TODO: Create function that returns a user's name from the sys_user table based on the sys_id
 
 function Get-ServiceNowInfoSOAP {
+    [cmdletbinding(DefaultParameterSetName='StandardQuery')]
     Param(
-        [Parameter(Mandatory=$true)]
+        [Parameter(ParameterSetName="StandardQuery", Mandatory=$true)]
+        [Parameter(ParameterSetName="EncodedQuery", Mandatory=$true)]
+        [Parameter(Position=0)]
         [Alias("URI")]
         #[ValidateScript({ Test-Connection $_ -Quiet })]
         [string] $ServiceNowURI,
 
         # Limit the choices to known existing and tested tables
-        [Parameter(Mandatory=$true)]
+        [Parameter(ParameterSetName="StandardQuery", Mandatory=$true)]
+        [Parameter(ParameterSetName="EncodedQuery", Mandatory=$true)]
+        [Parameter(Position=1)]
         [ValidateSet("incident","sys_user","sys_user_group")]
         [string] $ServiceNowTable,
 
