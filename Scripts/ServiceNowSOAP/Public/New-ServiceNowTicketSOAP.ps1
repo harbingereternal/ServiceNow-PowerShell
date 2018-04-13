@@ -27,7 +27,7 @@ Function New-ServiceNowTicketSOAP {
         [string] $ServiceNowURI,
 
         [Parameter(Mandatory=$true)]
-        [ValidateSet("incident")]
+        [ValidateSet("incident","sc_task")]
         [string] $ServiceNowTable,
 
         [Parameter(Mandatory=$false)]
@@ -64,13 +64,8 @@ Function New-ServiceNowTicketSOAP {
     # Create ROOT node and add attributes
     $root = $xmlDoc.CreateNode("element","SOAP-ENV:Envelope",$null)
 
-    # Set per table, use If/ElseIf as needed
-    If ($ServiceNowTable -eq "incident") {
-        $root.SetAttribute("xmlns:tns","`"http://www.service-now.com/incident`"")
-    }
-    #ElseIf ($ServiceNowTable -eq "sys_user") {
-    #    $root.SetAttribute("xmlns:tns","`"http://www.service-now.com/sys_user`"")
-    #}
+    # Build the action attribute
+    $root.SetAttribute("xmlns:act","`"http://www.service-now.com/$ServiceNowTable`"")
 
     $root.SetAttribute("xmlns:SOAP-ENV","`"http://schemas.xmlsoap.org/soap/envelope/`"")
     $root.SetAttribute("xmlns:SOAP-ENC","`"http://schemas.xmlsoap.org/soap/encoding/`"")

@@ -39,7 +39,7 @@ function Get-ServiceNowInfoSOAP {
         [Parameter(ParameterSetName="StandardQuery", Mandatory=$true)]
         [Parameter(ParameterSetName="EncodedQuery", Mandatory=$true)]
         [Parameter(Position=1)]
-        [ValidateSet("incident","sys_user","sys_user_group")]
+        [ValidateSet("incident","sys_user","sys_user_group","sc_task")]
         [string] $ServiceNowTable,
 
         [Parameter(Mandatory=$false,ParameterSetName="StandardQuery")]
@@ -79,15 +79,8 @@ function Get-ServiceNowInfoSOAP {
     $root = $xmlDoc.CreateNode("element","soapenv:Envelope",$null)
     $root.SetAttribute("xmlns:soapenv","`"http://schemas.xmlsoap.org/soap/envelope/`"")
 
-    If ($ServiceNowTable -eq "incident") {
-        $root.SetAttribute("xmlns:inc","`"http://www.service-now.com/incident`"")
-    }
-    ElseIf ($ServiceNowTable -eq "sys_user") {
-        $root.SetAttribute("xmlns:usr","`"http://www.service-now.com/sys_user`"")
-    }
-    ElseIf ($ServiceNowTable -eq "sys_user_group") {
-        $root.SetAttribute("xmlns:grp","`"http://www.service-now.com/sys_user_group`"")
-    }
+    # Build the action attribute
+    $root.SetAttribute("xmlns:act","`"http://www.service-now.com/$ServiceNowTable`"")
 
     # Create Header node, add it to the root
     $headerNode = $xmlDoc.CreateNode("element","soapenv:Header",$null)
@@ -97,16 +90,8 @@ function Get-ServiceNowInfoSOAP {
     $bodyNode = $xmlDoc.CreateNode("element","soapenv:Body",$null)
 
     # Create the "action" node, what we're doing
-    If ($ServiceNowTable -eq "incident") {
-        $actionNode = $xmlDoc.CreateNode("element","inc:getRecords",$null)
-    }
-    ElseIf ($ServiceNowTable -eq "sys_user") {
-        $actionNode = $xmlDoc.CreateNode("element","usr:getRecords",$null)
-    }
-    ElseIf ($ServiceNowTable -eq "sys_user_group") {
-        $actionNode = $xmlDoc.CreateNode("element","grp:getRecords",$null)
-    }
-
+    $actionNode = $xmlDoc.CreateNode("element","act:getRecords",$null)
+    
     # Create elements, assign them a value, and add them to the parent
     Foreach ($key in $SearchFilter.Keys) {
            
@@ -171,7 +156,7 @@ function Get-ServiceNowInfoSOAP {
         $htOutput = [ordered]@{}
     
         ####### DEBUG ONLY #######    
-        #$debugText = $xmlPOST.Envelope.Body.getRecordsResponse.ChildNodes.Count.ToString() + " nodes in getRecordsResult"
+        #$debugText = $xmlPOST.Envelope.Body.getRecordsResponse.ChildNodes.Count.ToString() + " nodes in getRecordsResponse"
         #Write-Host $debugText
         #
         #$debugText = $xmlPOST.Envelope.Body.getRecordsResponse.getRecordsResult[$i].ChildNodes.Count.ToString() + " nodes in getRecordsResult"
