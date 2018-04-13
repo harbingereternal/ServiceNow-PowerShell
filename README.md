@@ -3,32 +3,34 @@ Powershell scripts to leverage ServiceNow's SOAP web service.
 
 Developed for the Kingston release.
 
-[ServiceNow Kingston SOAP Web Service Documentation](https://docs.servicenow.com/bundle/kingston-application-development/page/integrate/inbound-soap/concept/c_SOAPWebService.html)
+* [ServiceNow Kingston SOAP Web Service Documentation](https://docs.servicenow.com/bundle/kingston-application-development/page/integrate/inbound-soap/concept/c_SOAPWebService.html)
+* [ServiceNow Kingston Filter Operator Documentation](https://docs.servicenow.com/bundle/kingston-platform-user-interface/page/use/common-ui-elements/reference/r_OpAvailableFiltersQueries.html)
 
 **IMPORTANT:** Neither this module nor its creator are in any way affiliated with ServiceNow.
 ## Tables Currently Supported
 
 ### Get-ServiceNowInfoSOAP
 * incident
+* sc_task
 * sys_user
 * sys_user_group
 
 ### New-ServiceNowTicketSOAP (formerly Create-ServiceNowTicket)
 * incident
+* sc_task
 
 ## Current Goals
 
 ### Get-ServiceNowInfoSOAP
-* Implement Encoded Queries - [ServiceNow Kingston Filter Operator Documentation](https://docs.servicenow.com/bundle/kingston-platform-user-interface/page/use/common-ui-elements/reference/r_OpAvailableFiltersQueries.html)
-	* Initial tests successful for incident, sys_user_group tables
+* Fix issue with FOR loop that seems to be preventing display of data from tables that have a single record.
 
 ### New-ServiceNowTicketSOAP (formerly Create-ServiceNowTicket)
-* Expand from Incident to cover more types of "tickets"
+* Expand from INCIDENT and SCTASK to cover more types of "tickets".
 
 ### All scripts
-* Get Custom XML builder into a function or independent script(s) to allow more flexibility
-* Create script to return the sys_id of a user by lastname and firstname, or employeenumber
-* Create script to update tickets
+* Get Custom XML builder into a function or independent script(s) to allow more flexibility.
+* Create script to return the sys_id or user_id of a user by lastname and firstname, or employeenumber.
+* Create script to update tickets.
 
 ## Usage
 
